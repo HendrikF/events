@@ -1,6 +1,26 @@
 class Events(object):
     def __init__(self):
         self.events = {}
+        '''
+        events:
+        {
+            'event_name': {
+                2: <func1>,
+                0: <func2>,
+                5: <func3>,
+                'priorities': [5, 2, 0]   <-- sorted when subscribing, for faster access
+            },
+            'second_event_name': {
+                ...
+            }
+        }
+        
+        functions get modified:
+        
+        func1.priorities = {
+            'event_name': 2
+        }
+        '''
     
     def sortKeys(self, name):
         keys = list(self.events[name].keys())
@@ -10,6 +30,7 @@ class Events(object):
     def _subscribe(self, name, priority, func):
         event = self.events.setdefault(name, {'priorities': []})
         while priority in event:
+            # later subscribed --> higher prio
             priority += 1
         if not hasattr(func, 'priorities'):
             func.priorities = {}
@@ -80,6 +101,7 @@ class Events(object):
     
     def recorder(self):
         class Recorder(Events):
+            '''Recorders track, what events they are subscribed'''
             def __init__(self, existing):
                 # all properties are objects, so when they are copied
                 # only references are made; so changes to one apply to all
