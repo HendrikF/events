@@ -19,10 +19,29 @@ class Events(object):
         event[priority] = func
         self.sortKeys(name)
     
-    def subscribe(self, func, priority = 0, name = None):
-        name = (name or func.__name__).lower()
-        self._subscribe(name, priority, func)
-        return func
+    #def subscribe(self, func, priority = 0, name = None):
+    def subscribe(self, *args):
+        args = list(args)
+        func = args.pop(0) if args and hasattr(args[0], '__call__') else None
+        
+        arg1 = args.pop(0) if args else None
+        arg2 = args.pop(0) if args else None
+        
+        if isinstance(arg1, int):
+            priority = arg1
+            name = arg2
+        else:
+            name = arg1
+            priority = arg2 if isinstance(arg2, int) else 0
+        
+        # for use as decorator
+        # @subscribe('name', 0)
+        def sub(func):
+            name_ = (name or func.__name__).lower()
+            self._subscribe(name_, priority, func)
+            return func
+        
+        return sub(func) if func else sub
     
     def _unsubscribe(self, name, func):
         if name not in self.events:
