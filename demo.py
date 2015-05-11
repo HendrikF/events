@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from Events import Events
+from events.Events import Events
 
 events = Events()
 
